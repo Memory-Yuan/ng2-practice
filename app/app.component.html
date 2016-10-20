@@ -1,7 +1,5 @@
 <div class="container">
-    <div class="slider-box" (pan)="handlePan($event)" (panend)="handlePan($event)">
-        <div #table01 class="table t1">01</div>
-        <div #table02 class="table t2">02</div>
-        <div #table03 class="table t3">03</div>
+    <div #sliderBox class="slider-box" (pan)="handlePan($event)" (panend)="handlePan($event)">
+        <div *ngFor="let i of [1, 2, 3]; let idx = index" class="table t{{i}}">{{idx}} {{i}}</div>
     </div>
 </div>

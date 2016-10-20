@@ -13,16 +13,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     orderArr: Array<number> = [-1, 0, 1];
     tableList: Array<HTMLDivElement> = [];
     tableWidth: number;
-    @ViewChild("table01") table01: ElementRef;
-    @ViewChild("table02") table02: ElementRef;
-    @ViewChild("table03") table03: ElementRef;
+    @ViewChild("sliderBox") sliderBox: ElementRef;
 
     ngOnInit(){}
 
     ngAfterViewInit() {
-        this.tableList.push(<HTMLDivElement>this.table01.nativeElement);
-        this.tableList.push(<HTMLDivElement>this.table02.nativeElement);
-        this.tableList.push(<HTMLDivElement>this.table03.nativeElement);
+        let tables = (<HTMLDivElement>this.sliderBox.nativeElement).children;
+        for(let i = 0; i < tables.length; i++){
+            this.tableList.push(<HTMLDivElement>tables[i]);
+        }
         this.tableWidth = this.tableList[0].offsetWidth;
         this.setTablesStyle();
     }
