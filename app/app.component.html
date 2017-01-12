@@ -1,5 +1,10 @@
-<div class="container">
-    <div #sliderBox class="slider-box" (pan)="handlePan($event)" (panend)="handlePan($event)">
-        <div *ngFor="let i of [1, 2, 3]; let idx = index" class="table t{{i}}">{{idx}} {{i}}</div>
+<div class="container"  [ngSwitch]="mode">
+    <div *ngSwitchCase="modeType.TWOCARD" class="card-wrap">
+        <div class="card"></div>
+        <div class="card back cover-card" (panstart)="handlePan($event)" (pan)="handlePan($event)" [ngStyle]="{'transform': cardStyle.transform, 'transition': cardStyle.transition}"></div>
     </div>
+    <div *ngSwitchCase="modeType.FLIP" class="card-wrap">
+        <div class="card"></div>
+    </div>
+    <button class="btn btn-default changeBtn" (tap)="changeMode()">change</button>
 </div>
