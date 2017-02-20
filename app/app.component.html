@@ -1,10 +1,34 @@
-<div class="container"  [ngSwitch]="mode">
-    <div *ngSwitchCase="modeType.TWOCARD" class="card-wrap">
-        <div class="card"></div>
-        <div class="card back cover-card" (panstart)="handlePan($event)" (pan)="handlePan($event)" [ngStyle]="{'transform': cardStyle.transform, 'transition': cardStyle.transition}"></div>
+<div class="container" [ngSwitch]="mode">
+    <div *ngSwitchCase="modeType.TWOCARD" class="mode-page">
+        <div class="card joker"></div>
+        <div class="card back cover-card" (panstart)="handlePan($event)" (pan)="handlePan($event)" [ngStyle]="coverCardStyle"></div>
     </div>
-    <div *ngSwitchCase="modeType.FLIP" class="card-wrap">
-        <div class="card"></div>
+    <div *ngSwitchCase="modeType.FLIP" class="mode-page">
+        <div #cardRef class="card-rect"></div>
+        <div class="card back" [ngStyle]="cardBackStyle"></div>
+        <div *ngIf="isTurning" class="card joker turning-card" [ngStyle]="turningCardStyle"></div>
+        <div *ngIf="isTurning" class="mask" [ngStyle]="maskStyle">↑
+            <div class="card-shadow" [ngStyle]="shadowStyle">
+                <div class="s-gradient"></div>
+                <div class="s-box"></div>
+            </div>
+        </div>
+        <div #touchRef class="touch-area" (panstart)="handleTurn($event)" (pan)="handleTurn($event)"></div>
+        <div class="touch-block"></div>
     </div>
-    <button class="btn btn-default changeBtn" (tap)="changeMode()">change</button>
+    <button [hidden]="isTurning" class="changeBtn" (tap)="changeMode()" [ngSwitch]="mode">
+        <span *ngSwitchCase="modeType.TWOCARD">mode 1</span>
+        <span *ngSwitchCase="modeType.FLIP">mode 2</span>
+    </button>
+    <!--<div class="coordinate" [ngStyle]="{'left.px': cardRect.left, 'top.px': cardRect.top}">({{cardRect.left || 0}}, {{cardRect.top || 0}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': cardRect.right, 'top.px': cardRect.top}">({{cardRect.right || 0}}, {{cardRect.top || 0}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': cardRect.left, 'top.px': cardRect.bottom}">({{cardRect.left || 0}}, {{cardRect.bottom || 0}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': cardRect.right, 'top.px': cardRect.bottom}">({{cardRect.right || 0}}, {{cardRect.bottom || 0}})</div>-->
+    <!--<div class="coordinate" [ngStyle]="{'left.px': oriPoint.x, 'top.px': oriPoint.y}">O({{oriPoint.x || 0}}, {{oriPoint.y || 0}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': touchPoint.x, 'top.px': touchPoint.y}">T({{touchPoint.x || 0}}, {{touchPoint.y || 0}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': midPoint.x, 'top.px': midPoint.y}">M({{midPoint.x || 0}}, {{midPoint.y || 0}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': topPoint.x, 'top.px': topPoint.y}">({{(topPoint.x || 0) | number : '1.2-2'}}, {{(topPoint.y || 0) | number : '1.2-2'}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': bottomPoint.x, 'top.px': bottomPoint.y}">({{(bottomPoint.x || 0) | number : '1.2-2'}}, {{(bottomPoint.y || 0) | number : '1.2-2'}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': leftPoint.x, 'top.px': leftPoint.y}">({{(leftPoint.x || 0) | number : '1.2-2'}}, {{(leftPoint.y || 0) | number : '1.2-2'}})</div>
+    <div class="coordinate" [ngStyle]="{'left.px': rightPoint.x, 'top.px': rightPoint.y}">({{(rightPoint.x || 0) | number : '1.2-2'}}, {{(rightPoint.y || 0) | number : '1.2-2'}})</div>-->
 </div>
