@@ -4,7 +4,8 @@ import { AppComponent } from './app.component';
 
 export class AppHammerConfig extends HammerGestureConfig {
   overrides = <any>{
-    "pan": { threshold: 1 }
+    "pan": { threshold: 1 },
+    "rotate": { enable: true }
   }
 }
 

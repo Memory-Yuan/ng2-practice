@@ -7,7 +7,7 @@
         <div #cardRef class="card-rect"></div>
         <div class="card back" [ngStyle]="cardBackStyle"></div>
         <div *ngIf="isTurning" class="card joker turning-card" [ngStyle]="turningCardStyle"></div>
-        <div *ngIf="isTurning" class="mask" [ngStyle]="maskStyle">↑
+        <div *ngIf="isTurning" class="mask" [ngStyle]="maskStyle">
             <div class="card-shadow" [ngStyle]="shadowStyle">
                 <div class="s-gradient"></div>
                 <div class="s-box"></div>
@@ -16,10 +16,12 @@
         <div #touchRef class="touch-area" (panstart)="handleTurn($event)" (pan)="handleTurn($event)"></div>
         <div class="touch-block"></div>
     </div>
-    <button [hidden]="isTurning" class="changeBtn" (tap)="changeMode()" [ngSwitch]="mode">
+    <button [hidden]="isTurning" class="change-btn" (tap)="changeMode()" [ngSwitch]="mode">
         <span *ngSwitchCase="modeType.TWOCARD">mode 1</span>
         <span *ngSwitchCase="modeType.FLIP">mode 2</span>
     </button>
+
+    <button class="replay-btn" (tap)="initial()">replay</button>
     <!--<div class="coordinate" [ngStyle]="{'left.px': cardRect.left, 'top.px': cardRect.top}">({{cardRect.left || 0}}, {{cardRect.top || 0}})</div>
     <div class="coordinate" [ngStyle]="{'left.px': cardRect.right, 'top.px': cardRect.top}">({{cardRect.right || 0}}, {{cardRect.top || 0}})</div>
     <div class="coordinate" [ngStyle]="{'left.px': cardRect.left, 'top.px': cardRect.bottom}">({{cardRect.left || 0}}, {{cardRect.bottom || 0}})</div>

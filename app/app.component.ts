@@ -23,6 +23,8 @@ enum TouchAreaType {
     EDGE, CORNER
 }
 
+const CornerAreaLength = 40;
+
 // type Position = "TOP" | "BOTTOM" | "LEFT" | "RIGHT" | "CENTER";
 
 // class PositionClass {
@@ -50,7 +52,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         coverCard: {},
         turningCard: {},
         mask: {},
-        shadow: {},
+        shadow: {
+            height: "200px"
+        },
         cardBack: {}
     }
 
@@ -79,6 +83,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     touchCorner: Corner = null;
 
     isTurning: boolean = false;
+    isTurnFin: boolean = false;
 
     PointA: HammerPoint = { x: 0, y: 0 };
     PointB: HammerPoint = { x: 0, y: 0 };
@@ -87,7 +92,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     funcLineAD: (x: number, y: number) => HammerPoint;
     funcLineBC: (x: number, y: number) => HammerPoint;
 
-    readonly CornerAreaLength: number = 40;
+    animateTimeout: any;
 
     constructor(private cdRef: ChangeDetectorRef) { }
 
@@ -126,7 +131,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                 }
                 return p;
             }
-            // console.log(this.cardRect);
+            console.log(this.cardRect);
         }
 
         if (this.touchRef && this.touchRef.nativeElement) {
@@ -149,14 +154,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     changeMode() {
-        this.mode = this.mode === Mode.TWOCARD ? Mode.FLIP : Mode.TWOCARD;
+        this.isTurnFin = true;
+        // this.mode = this.mode === Mode.TWOCARD ? Mode.FLIP : Mode.TWOCARD;
     }
 
     handleTurn(e: HammerInput) {
-        // let translateX: number,
-        //     translateY: number,
-        // rotate: number,
-        // angleDeg: number;
+        if (this.isTurnFin) { return; }
+
         this.touchPoint = e.center;
 
         if (e.type === "panstart") {
@@ -166,95 +170,77 @@ export class AppComponent implements OnInit, AfterViewInit {
             this.shadowStyle = Object.assign({}, this.InitStyle.shadow);
             this.cardBackStyle = Object.assign({}, this.InitStyle.cardBack);
             this.isTurning = true;
-            this.touchAreaType = TouchAreaType.CORNER;
-            this.touchEdge = null;
-            this.touchCorner = null;
 
-            // distance between touch point and top/bottom/left/right edge of touch area;
-            let dPointTop = this.touchPoint.y - this.touchRect.top,
-                dPointBtm = this.touchRect.bottom - this.touchPoint.y,
-                dPointLft = this.touchPoint.x - this.touchRect.left,
-                dPointRit = this.touchRect.right - this.touchPoint.x;
+            let touchArea = this.getTouchArea(this.touchPoint);
+            this.touchAreaType = touchArea.type;
+            if (touchArea.type === TouchAreaType.CORNER) {
+                this.touchCorner = <Corner>touchArea.value;
 
-            if (dPointTop < this.CornerAreaLength && dPointLft < this.CornerAreaLength) {
-                this.touchCorner = Corner.A;
-                this.oriPoint = this.PointA;
-            } else if (dPointTop < this.CornerAreaLength && dPointRit < this.CornerAreaLength) {
-                this.touchCorner = Corner.B;
-                this.oriPoint = this.PointB;
-            } else if (dPointBtm < this.CornerAreaLength && dPointLft < this.CornerAreaLength) {
-                this.touchCorner = Corner.C;
-                this.oriPoint = this.PointC;
-            } else if (dPointBtm < this.CornerAreaLength && dPointRit < this.CornerAreaLength) {
-                this.touchCorner = Corner.D;
-                this.oriPoint = this.PointD;
-            } else {
+                let cornerObj = {
+                    [Corner.A]: () => {
+                        this.oriPoint = this.PointA;
+                    },
+                    [Corner.B]: () => {
+                        this.oriPoint = this.PointB;
+                    },
+                    [Corner.C]: () => {
+                        this.oriPoint = this.PointC;
+                    },
+                    [Corner.D]: () => {
+                        this.oriPoint = this.PointD;
+                    }
+                };
+                cornerObj[touchArea.value] && cornerObj[touchArea.value]();
 
-                // point at line AD/AC
-                let pAD = this.funcLineAD(this.touchPoint.x, null),
-                    pBC = this.funcLineBC(this.touchPoint.x, null);
+            } else if (touchArea.type === TouchAreaType.EDGE) {
+                this.touchEdge = <Edge>touchArea.value;
 
-                this.touchAreaType = TouchAreaType.EDGE;
-
-                if (this.touchPoint.y <= pAD.y) {
-                    if (this.touchPoint.y <= pBC.y) {
-                        this.touchEdge = Edge.AB;
-
+                let edgeObj = {
+                    [Edge.AB]: () => {
                         this.turningCardStyle.top = "-100%";
                         this.turningCardStyle.left = 0;
-                        this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 0px -32px 40px 5px";
+                        // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 0px -32px 40px 5px";
                         this.maskStyle.bottom = "100%";
                         this.maskStyle.left = `${-(this.cardRect.height * 2 - this.cardRect.width) / 2}px`;
                         this.shadowStyle.width = `${this.cardRect.width}px`;
-                    } else {
-                        this.touchEdge = Edge.BD;
-
+                    },
+                    [Edge.CD]: () => {
+                        this.turningCardStyle.top = "100%";
+                        this.turningCardStyle.left = 0;
+                        // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 0px -32px 40px 5px";
+                        this.maskStyle.top = "100%";
+                        this.maskStyle.left = `${-(this.cardRect.height * 2 - this.cardRect.width) / 2}px`;
+                        this.shadowStyle.width = `${this.cardRect.width}px`;
+                    },
+                    [Edge.AC]: () => {
+                        this.turningCardStyle.top = 0;
+                        this.turningCardStyle.left = "-100%";
+                        // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 32px 0px 40px 5px";
+                        this.maskStyle.top = "-50%";
+                        this.maskStyle.right = "100%";
+                        this.shadowStyle.width = `${this.cardRect.height}px`;
+                    },
+                    [Edge.BD]: () => {
                         this.turningCardStyle.top = 0;
                         this.turningCardStyle.left = "100%";
-                        this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) -32px 0px 40px 5px";
+                        // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) -32px 0px 40px 5px";
                         this.maskStyle.top = "-50%";
                         this.maskStyle.left = "100%";
                         this.shadowStyle.width = `${this.cardRect.height}px`;
                     }
-
-                } else {
-                    if (this.touchPoint.y <= pBC.y) {
-                        this.touchEdge = Edge.AC;
-
-                        this.turningCardStyle.top = 0;
-                        this.turningCardStyle.left = "-100%";
-                        this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 32px 0px 40px 5px";
-                        this.maskStyle.top = "-50%";
-                        this.maskStyle.right = "100%";
-                        this.shadowStyle.width = `${this.cardRect.height}px`;
-                    } else {
-                        this.touchEdge = Edge.CD;
-
-                        this.turningCardStyle.top = "100%";
-                        this.turningCardStyle.left = 0;
-                        this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 0px -32px 40px 5px";
-                        this.maskStyle.top = "100%";
-                        this.maskStyle.left = `${-(this.cardRect.height * 2 - this.cardRect.width) / 2}px`;
-                        this.shadowStyle.width = `${this.cardRect.width}px`;
-                    }
-
-                }
+                };
+                edgeObj[touchArea.value] && edgeObj[touchArea.value]();
             }
-        } else if (e.isFinal) {
-            this.isTurning = false;
-            this.cardBackStyle = Object.assign({}, this.InitStyle.cardBack);
-            // this.turningCardStyle = Object.assign({}, this.InitTurningCardStyle);
-            // this.maskStyle = Object.assign({}, this.InitMaskStyle);
-            return;
         }
 
+        let turningCardRotate: number = 0,
+            maskRotate: number = 0,
+            translateX: number = 0,
+            translateY: number = 0,
+            maskX: number = 0,
+            maskY: number = 0;
 
         if (this.touchAreaType === TouchAreaType.EDGE) {
-            let turningCardRotate: number = 0,
-                maskRotate: number = 0,
-                translateX: number = 0,
-                translateY: number = 0;
-
             let obj = {
                 [Edge.AB]: () => {
                     translateY = this.touchPoint.y - this.cardRect.top;
@@ -279,11 +265,52 @@ export class AppComponent implements OnInit, AfterViewInit {
             };
 
             obj[this.touchEdge] && obj[this.touchEdge]();
+        } else if (this.touchAreaType === TouchAreaType.CORNER) {
 
-            this.cardBackStyle.transform = `translate(${-translateX / 2}px, ${-translateY / 2}px)`;
-            this.turningCardStyle.transform = `translate(${translateX}px, ${translateY}px) rotate(${turningCardRotate}deg)`;
-            this.maskStyle.transform = `translate(${translateX / 2}px, ${translateY / 2}px) rotate(${maskRotate}deg)`;
         }
+
+        // console.log(`trx: ${translateX}, try: ${translateY}`);
+        if (e.isFinal) {
+            if (Math.abs(translateX) > this.cardRect.width * 0.6 || Math.abs(translateY) > this.cardRect.height * 0.6) {
+                // console.log("fin");
+                let transitionMS: number = 300;
+                this.cardBackStyle.transition = `transform ${transitionMS}ms ease-out`;
+                this.turningCardStyle.transition = `transform ${transitionMS}ms ease-out, box-shadow ${transitionMS}ms ease-out`;
+                this.maskStyle.transition = `transform ${transitionMS}ms ease-out`;
+
+                if (translateX !== 0) {
+                    translateX = translateX > 0 ? this.cardRect.width : -this.cardRect.width;
+                }
+
+                if (translateY !== 0) {
+                    translateY = translateY > 0 ? this.cardRect.height : -this.cardRect.height;
+                }
+
+                this.isTurnFin = true;
+
+                this.animateTimeout && clearTimeout(this.animateTimeout);
+                this.animateTimeout = setTimeout(() => {
+                    this.cardBackStyle = Object.assign({}, this.InitStyle.cardBack);
+                    this.turningCardStyle.transform = `translate(${translateX}px, ${translateY}px) rotate(${turningCardRotate}deg) scale(1)`;
+                    this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.3) 1px 1px 6px";
+                    this.maskStyle.opacity = 0;
+                }, 250);
+            }
+            // this.isTurning = false;
+            // this.cardBackStyle = Object.assign({}, this.InitStyle.cardBack);
+            // this.turningCardStyle = Object.assign({}, this.InitTurningCardStyle);
+            // this.maskStyle = Object.assign({}, this.InitMaskStyle);
+            // return;
+        }
+
+        this.cardBackStyle.transform = `translate(${-translateX / 2}px, ${-translateY / 2}px)`;
+        this.turningCardStyle.transform = `translate(${translateX}px, ${translateY}px) rotate(${turningCardRotate}deg) scale(1.05)`;
+        if (this.isTurnFin) {
+            this.maskStyle.transform = `translate(0, 0) rotate(${maskRotate}deg) scale(1.05)`;
+        } else {
+            this.maskStyle.transform = `translate(${translateX / 2}px, ${translateY / 2}px) rotate(${maskRotate}deg) scale(1.05)`;
+        }
+
 
         // if (this.vertical === Position.TOP) {
         //     translateY = this.touchPoint.y - this.cardRect.top;
@@ -349,4 +376,51 @@ export class AppComponent implements OnInit, AfterViewInit {
         // this.turningCardStyle.transform = `translate(${translateX}px, ${translateY}px) rotate(${angleDeg}deg)`;
     }
 
+    getTouchArea(point: HammerPoint): { type: TouchAreaType, value: Edge | Corner } {
+        let result = { type: <any>null, value: <any>null };
+
+        // distance between touch point and top/bottom/left/right edge of touch area;
+        let dPointTop = point.y - this.touchRect.top,
+            dPointBtm = this.touchRect.bottom - point.y,
+            dPointLft = point.x - this.touchRect.left,
+            dPointRit = this.touchRect.right - point.x;
+
+        if (dPointTop < CornerAreaLength && dPointLft < CornerAreaLength) {
+            result.value = Corner.A;
+            result.type = TouchAreaType.CORNER;
+        } else if (dPointTop < CornerAreaLength && dPointRit < CornerAreaLength) {
+            result.value = Corner.B;
+            result.type = TouchAreaType.CORNER;
+        } else if (dPointBtm < CornerAreaLength && dPointLft < CornerAreaLength) {
+            result.value = Corner.C;
+            result.type = TouchAreaType.CORNER;
+        } else if (dPointBtm < CornerAreaLength && dPointRit < CornerAreaLength) {
+            result.value = Corner.D;
+            result.type = TouchAreaType.CORNER;
+        } else {
+
+            // point at line AD/AC
+            let pAD = this.funcLineAD(point.x, null),
+                pBC = this.funcLineBC(point.x, null);
+
+            result.type = TouchAreaType.EDGE;
+
+            if (point.y <= pAD.y) {
+                result.value = point.y <= pBC.y ? Edge.AB : Edge.BD;
+            } else {
+                result.value = point.y <= pBC.y ? Edge.AC : Edge.CD;
+            }
+        }
+        return result;
+    }
+
+    initial() {
+        this.turningCardStyle = Object.assign({}, this.InitStyle.turningCard);
+        this.maskStyle = Object.assign({}, this.InitStyle.mask);
+        this.shadowStyle = Object.assign({}, this.InitStyle.shadow);
+        this.cardBackStyle = Object.assign({}, this.InitStyle.cardBack);
+        this.isTurning = false;
+        this.isTurnFin = false;
+        this.animateTimeout && clearTimeout(this.animateTimeout);
+    }
 }
