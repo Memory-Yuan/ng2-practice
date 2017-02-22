@@ -271,12 +271,17 @@ export class AppComponent implements OnInit, AfterViewInit {
 
         // console.log(`trx: ${translateX}, try: ${translateY}`);
         if (e.isFinal) {
+            let transitionMS: number = 300;
+            this.cardBackStyle.transition = `transform ${transitionMS}ms ease-out`;
+            this.turningCardStyle.transition = `transform ${transitionMS}ms ease-out, box-shadow ${transitionMS}ms ease-out`;
+            this.maskStyle.transition = `transform ${transitionMS}ms ease-out`;
+
             if (Math.abs(translateX) > this.cardRect.width * 0.6 || Math.abs(translateY) > this.cardRect.height * 0.6) {
                 // console.log("fin");
-                let transitionMS: number = 300;
-                this.cardBackStyle.transition = `transform ${transitionMS}ms ease-out`;
-                this.turningCardStyle.transition = `transform ${transitionMS}ms ease-out, box-shadow ${transitionMS}ms ease-out`;
-                this.maskStyle.transition = `transform ${transitionMS}ms ease-out`;
+
+                // this.cardBackStyle.transition = `transform ${transitionMS}ms ease-out`;
+                // this.turningCardStyle.transition = `transform ${transitionMS}ms ease-out, box-shadow ${transitionMS}ms ease-out`;
+                // this.maskStyle.transition = `transform ${transitionMS}ms ease-out`;
 
                 if (translateX !== 0) {
                     translateX = translateX > 0 ? this.cardRect.width : -this.cardRect.width;
@@ -294,6 +299,13 @@ export class AppComponent implements OnInit, AfterViewInit {
                     this.turningCardStyle.transform = `translate(${translateX}px, ${translateY}px) rotate(${turningCardRotate}deg) scale(1)`;
                     this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.3) 1px 1px 6px";
                     this.maskStyle.opacity = 0;
+                }, 250);
+            } else {
+                translateX = 0;
+                translateY = 0;
+                this.animateTimeout && clearTimeout(this.animateTimeout);
+                this.animateTimeout = setTimeout(() => {
+                    this.initial();    
                 }, 250);
             }
             // this.isTurning = false;
