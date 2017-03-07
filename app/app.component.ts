@@ -37,6 +37,18 @@ const CornerAreaLength = 40;
 
 // const Position = new PositionClass();
 
+enum AnimationType {
+    FINISH, BACK
+}
+
+const AnimationDuration = 300;
+
+// (function () {
+//     let requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+//         window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+//     window.requestAnimationFrame = requestAnimationFrame;
+// })();
+
 @Component({
     moduleId: module.id,
     selector: 'my-app',
@@ -54,13 +66,21 @@ export class AppComponent implements OnInit, AfterViewInit {
         mask: {},
         shadow: {},
         cardBack: {}
-    }
+    };
 
     coverCardStyle: any = Object.assign({}, this.InitStyle.coverCard);
     turningCardStyle: any = Object.assign({}, this.InitStyle.turningCard);
     maskStyle: any = Object.assign({}, this.InitStyle.mask);
     shadowStyle: any = Object.assign({}, this.InitStyle.shadow);
     cardBackStyle: any = Object.assign({}, this.InitStyle.cardBack);
+    styleValForAnimation: {
+        turningCardRotate: number,
+        maskRotate: number,
+        translateX: number,
+        translateY: number,
+        cardScale: number,
+        shadowScale: number
+    };
 
     mode: Mode = Mode.FLIP;
     modeType = Mode;
@@ -82,6 +102,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     isTurning: boolean = false;
     isTurnFin: boolean = false;
+    isOnAnimate: boolean = false;
 
     PointA: HammerPoint = { x: 0, y: 0 };
     PointB: HammerPoint = { x: 0, y: 0 };
@@ -90,7 +111,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     funcLineAD: (x: number, y: number) => HammerPoint;
     funcLineBC: (x: number, y: number) => HammerPoint;
 
-    animateTimeout: any;
+    // animateTimeout: any;
+
+    animationID: number;
+    animationStartTime: number = 0;
+    animationDuration: number = AnimationDuration;
 
     constructor(private cdRef: ChangeDetectorRef) { }
 
@@ -152,12 +177,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     changeMode() {
-        this.isTurnFin = true;
-        // this.mode = this.mode === Mode.TWOCARD ? Mode.FLIP : Mode.TWOCARD;
+        this.mode = this.mode === Mode.TWOCARD ? Mode.FLIP : Mode.TWOCARD;
     }
 
     handleTurn(e: HammerInput) {
-        if (this.isTurnFin) { return; }
+        if (this.isTurnFin || this.isOnAnimate) { return; }
 
         this.touchPoint = e.center;
 
@@ -195,8 +219,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
                 let edgeObj = {
                     [Edge.AB]: () => {
-                        this.turningCardStyle.top = "-100%";
+                        this.turningCardStyle.top = 0;
                         this.turningCardStyle.left = 0;
+                        this.turningCardStyle.transformOrigin = "top";
                         // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 0px -32px 40px 5px";
                         this.maskStyle.bottom = "100%";
                         this.maskStyle.left = `${-(this.cardRect.height * 2 - this.cardRect.width) / 2}px`;
@@ -205,6 +230,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                     [Edge.CD]: () => {
                         this.turningCardStyle.top = "100%";
                         this.turningCardStyle.left = 0;
+                        this.turningCardStyle.transformOrigin = "top";
                         // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 0px -32px 40px 5px";
                         this.maskStyle.top = "100%";
                         this.maskStyle.left = `${-(this.cardRect.height * 2 - this.cardRect.width) / 2}px`;
@@ -213,6 +239,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                     [Edge.AC]: () => {
                         this.turningCardStyle.top = 0;
                         this.turningCardStyle.left = "-100%";
+                        this.turningCardStyle.transformOrigin = "right";
                         // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 32px 0px 40px 5px";
                         this.maskStyle.top = "-50%";
                         this.maskStyle.right = "100%";
@@ -221,6 +248,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                     [Edge.BD]: () => {
                         this.turningCardStyle.top = 0;
                         this.turningCardStyle.left = "100%";
+                        this.turningCardStyle.transformOrigin = "left";
                         // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) -32px 0px 40px 5px";
                         this.maskStyle.top = "-50%";
                         this.maskStyle.left = "100%";
@@ -231,109 +259,69 @@ export class AppComponent implements OnInit, AfterViewInit {
             }
         }
 
-        let turningCardRotate: number = 0,
-            maskRotate: number = 0,
-            translateX: number = 0,
-            translateY: number = 0,
-            cardScale: number = 0,
-            shadowScale: number = 0;
+        this.styleValForAnimation = {
+            turningCardRotate: 0,
+            maskRotate: 0,
+            translateX: 0,
+            translateY: 0,
+            cardScale: 0,
+            shadowScale: 0
+        };
 
         if (this.touchAreaType === TouchAreaType.EDGE) {
             let tr: number;
             let obj = {
                 [Edge.AB]: () => {
                     tr = this.touchPoint.y - this.cardRect.top;
-                    tr > 0 && (translateY = tr);
-                    maskRotate = 180;
-                    turningCardRotate = 180;
+                    tr > 0 && (this.styleValForAnimation.translateY = tr);
+                    this.styleValForAnimation.maskRotate = 180;
+                    this.styleValForAnimation.turningCardRotate = 180;
                 },
                 [Edge.CD]: () => {
                     tr = -(this.cardRect.bottom - this.touchPoint.y);
-                    tr < 0 && (translateY = tr);
-                    // maskRotate = 0;
-                    // turningCardRotate = 0;
+                    tr < 0 && (this.styleValForAnimation.translateY = tr);
+                    // this.styleValForAnimation.maskRotate = 0;
+                    // this.styleValForAnimation.turningCardRotate = 0;
                 },
                 [Edge.AC]: () => {
                     tr = this.touchPoint.x - this.cardRect.left;
-                    tr > 0 && (translateX = tr);
-                    maskRotate = 90;
+                    tr > 0 && (this.styleValForAnimation.translateX = tr);
+                    this.styleValForAnimation.maskRotate = 90;
                     // turningCardRotate = 0;
                 },
                 [Edge.BD]: () => {
                     tr = -(this.cardRect.right - this.touchPoint.x);
-                    tr < 0 && (translateX = tr);
-                    maskRotate = -90;
+                    tr < 0 && (this.styleValForAnimation.translateX = tr);
+                    this.styleValForAnimation.maskRotate = -90;
                     // turningCardRotate = 0;
                 }
             };
 
             obj[this.touchEdge] && obj[this.touchEdge]();
 
-            let trXY = Math.abs(translateX) + Math.abs(translateY);
+            let trXY = Math.abs(this.styleValForAnimation.translateX) + Math.abs(this.styleValForAnimation.translateY);
             let v = trXY > 100 ? 100 : trXY;
-            cardScale = 1 + v * 0.05 / 100;
-            shadowScale = v / 100;
+            this.styleValForAnimation.cardScale = 1 + v * 0.05 / 100;
+            this.styleValForAnimation.shadowScale = v / 100;
 
             this.isTurning = trXY > 0;
 
         } else if (this.touchAreaType === TouchAreaType.CORNER) {
-
+            // this.isTurning = ?;
         }
 
-        console.log(`trx: ${translateX}, try: ${translateY}`);
+        this.cardBackStyle.transform = `translate(${-this.styleValForAnimation.translateX / 2}px, ${-this.styleValForAnimation.translateY / 2}px)`;
+        this.turningCardStyle.transform = `translate(${this.styleValForAnimation.translateX}px, ${this.styleValForAnimation.translateY}px) rotate(${this.styleValForAnimation.turningCardRotate}deg) scale(${this.styleValForAnimation.cardScale})`;
+        this.shadowStyle.transform = `translate(-50%) scaleY(${this.styleValForAnimation.shadowScale})`;
+        this.maskStyle.transform = `translate(${this.styleValForAnimation.translateX / 2}px, ${this.styleValForAnimation.translateY / 2}px) rotate(${this.styleValForAnimation.maskRotate}deg) scaleX(${this.styleValForAnimation.cardScale})`;
+
         if (e.isFinal) {
-            // let transitionMS: number = 300;
-            // let transitionFunc: string = "ease-out";
-            // this.cardBackStyle.transition = `transform ${transitionMS}ms ${transitionFunc}`;
-            // this.turningCardStyle.transition = `transform ${transitionMS}ms ${transitionFunc}, box-shadow ${transitionMS}ms ${transitionFunc}`;
-            // this.maskStyle.transition = `transform ${transitionMS}ms ${transitionFunc}`;
-            // this.shadowStyle.transition = `transform ${transitionMS}ms ${transitionFunc}`;
-
-            // cardScale = 1;
-            // shadowScale = 0
-
-            if (Math.abs(translateX) > this.cardRect.width * 0.6 || Math.abs(translateY) > this.cardRect.height * 0.6) {
-                // console.log("fin");
-                if (translateX !== 0) {
-                    translateX = translateX > 0 ? this.cardRect.width : -this.cardRect.width;
-                }
-
-                if (translateY !== 0) {
-                    translateY = translateY > 0 ? this.cardRect.height : -this.cardRect.height;
-                }
-
+            if (Math.abs(this.styleValForAnimation.translateX) > this.cardRect.width * 0.6 || Math.abs(this.styleValForAnimation.translateY) > this.cardRect.height * 0.6) {
                 this.isTurnFin = true;
-
-                this.animateTimeout && clearTimeout(this.animateTimeout);
-                this.animateTimeout = setTimeout(() => {
-                    this.cardBackStyle = Object.assign({}, this.InitStyle.cardBack);
-                    // this.turningCardStyle.transform = `translate(${translateX}px, ${translateY}px) rotate(${turningCardRotate}deg) scale(1)`;
-                    this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.3) 1px 1px 6px";
-                    this.maskStyle.opacity = 0;
-                }, 250);
+                this.startAnimation(AnimationType.FINISH, 300);
             } else {
-                // translateX = 0;
-                // translateY = 0;
-                // this.animateTimeout && clearTimeout(this.animateTimeout);
-                // this.animateTimeout = setTimeout(() => {
-                //     this.initial();
-                // }, 250);
+                this.startAnimation(AnimationType.BACK, 300);
             }
-            // this.isTurning = false;
-            // this.cardBackStyle = Object.assign({}, this.InitStyle.cardBack);
-            // this.turningCardStyle = Object.assign({}, this.InitTurningCardStyle);
-            // this.maskStyle = Object.assign({}, this.InitMaskStyle);
-            // return;
-        }
-
-        this.cardBackStyle.transform = `translate(${-translateX / 2}px, ${-translateY / 2}px)`;
-        this.turningCardStyle.transform = `translate(${translateX}px, ${translateY}px) rotate(${turningCardRotate}deg) scale(${cardScale})`;
-        this.shadowStyle.transform = `translate(-50%) scaleY(${shadowScale})`;
-        if (this.isTurnFin) {
-            this.maskStyle.transform = `translate(0, 0) rotate(${maskRotate}deg) scale(${cardScale})`;
-
-        } else {
-            this.maskStyle.transform = `translate(${translateX / 2}px, ${translateY / 2}px) rotate(${maskRotate}deg) scale(${cardScale})`;
         }
 
 
@@ -446,6 +434,99 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.cardBackStyle = Object.assign({}, this.InitStyle.cardBack);
         this.isTurning = false;
         this.isTurnFin = false;
-        this.animateTimeout && clearTimeout(this.animateTimeout);
+        this.isOnAnimate = false;
+        // this.animateTimeout && clearTimeout(this.animateTimeout);
+        this.animationID && cancelAnimationFrame(this.animationID);
+    }
+
+    startAnimation(animation: AnimationType, duration?: number) {
+        this.animationStartTime = Date.now();
+        this.animationID && cancelAnimationFrame(this.animationID);
+        this.animationDuration = !!duration ? duration : AnimationDuration;
+        this.isOnAnimate = true;
+        if (animation === AnimationType.FINISH) {
+            this.animationID = requestAnimationFrame(() => this.__updateFinish());
+        } else if (animation === AnimationType.BACK) {
+            this.animationID = requestAnimationFrame(() => this.__updateBack());
+        }
+    }
+
+    private __updateFinish() {
+        let currentTime = Date.now(),
+            progress = (currentTime - this.animationStartTime) / this.animationDuration;
+        progress > 1 && (progress = 1);
+
+        let finTurnTrX = 0,
+            finTurnTrY = 0,
+            turnTrX = this.styleValForAnimation.translateX,
+            turnTrY = this.styleValForAnimation.translateY,
+            finMaskTrX = 0,
+            finMaskTrY = 0,
+            maskTrX = this.styleValForAnimation.translateX / 2,
+            maskTrY = this.styleValForAnimation.translateY / 2,
+            shadowScale = 0;
+
+        if (turnTrX !== 0) {
+            finTurnTrX = turnTrX > 0 ? this.cardRect.width : -this.cardRect.width;
+            finMaskTrX = finTurnTrX - finTurnTrX * this.styleValForAnimation.cardScale;
+        }
+        if (turnTrY !== 0) {
+            finTurnTrY = turnTrY > 0 ? this.cardRect.height : -this.cardRect.height;
+            finMaskTrY = finTurnTrY - finTurnTrY * this.styleValForAnimation.cardScale;
+        }
+        turnTrX += (finTurnTrX - turnTrX) * progress;
+        turnTrY += (finTurnTrY - turnTrY) * progress;
+        maskTrX += (finMaskTrX - maskTrX) * progress;
+        maskTrY += (finMaskTrY - maskTrY) * progress;
+
+        let v = Math.abs(maskTrX - finMaskTrX) + Math.abs(maskTrY - finMaskTrY);
+        v = v > 100 ? 100 : v;
+        shadowScale = v / 100;
+
+        this.cardBackStyle.opacity = 0;
+        this.turningCardStyle.transform = `translate(${turnTrX}px, ${turnTrY}px) rotate(${this.styleValForAnimation.turningCardRotate}deg) scale(${this.styleValForAnimation.cardScale})`;
+        this.shadowStyle.transform = `translate(-50%) scaleY(${shadowScale})`;
+        this.maskStyle.transform = `translate(${maskTrX}px, ${maskTrY}px) rotate(${this.styleValForAnimation.maskRotate}deg) scaleX(${this.styleValForAnimation.cardScale})`;
+
+        if (progress < 1) {
+            this.animationID = requestAnimationFrame(() => this.__updateFinish());
+        } else {
+            this.maskStyle.opacity = 0;
+            this.isOnAnimate = false;
+        }
+    }
+
+    private __updateBack() {
+        let currentTime = Date.now(),
+            progress = (currentTime - this.animationStartTime) / this.animationDuration
+        progress > 1 && (progress = 1);
+
+        let turnTrX = this.styleValForAnimation.translateX,
+            turnTrY = this.styleValForAnimation.translateY,
+            maskTrX = this.styleValForAnimation.translateX / 2,
+            maskTrY = this.styleValForAnimation.translateY / 2,
+            cardScale = 0,
+            shadowScale = 0;
+
+        turnTrX += (0 - turnTrX) * progress;
+        turnTrY += (0 - turnTrY) * progress;
+        maskTrX += (0 - maskTrX) * progress;
+        maskTrY += (0 - maskTrY) * progress;
+
+        let trXY = Math.abs(turnTrX) + Math.abs(turnTrY);
+        let v = trXY > 100 ? 100 : trXY;
+        cardScale = 1 + 0.05 * v / 100;
+        shadowScale = v / 100;
+
+        this.cardBackStyle.transform = `translate(${-maskTrX}px, ${-maskTrY}px)`;
+        this.turningCardStyle.transform = `translate(${turnTrX}px, ${turnTrY}px) rotate(${this.styleValForAnimation.turningCardRotate}deg) scale(${cardScale})`;
+        this.shadowStyle.transform = `translate(-50%) scaleY(${shadowScale})`;
+        this.maskStyle.transform = `translate(${maskTrX}px, ${maskTrY}px) rotate(${this.styleValForAnimation.maskRotate}deg) scaleX(${cardScale})`;
+
+        if (progress < 1) {
+            this.animationID = requestAnimationFrame(() => this.__updateBack());
+        } else {
+            this.initial();
+        }
     }
 }
