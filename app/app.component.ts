@@ -4,44 +4,13 @@
 //  └───┘
 // C     D
 
-
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 
-enum Mode {
-    TWOCARD, FLIP
-}
-
-enum Edge {
-    AB, CD, AC, BD
-}
-
-enum Corner {
-    A, B, C, D
-}
-
-enum TouchAreaType {
-    EDGE, CORNER
-}
-
-const CornerAreaLength = 40;
-
-// type Position = "TOP" | "BOTTOM" | "LEFT" | "RIGHT" | "CENTER";
-
-// class PositionClass {
-//     TOP: "TOP" = "TOP";
-//     BOTTOM: "BOTTOM" = "BOTTOM";
-//     LEFT: "LEFT" = "LEFT";
-//     RIGHT: "RIGHT" = "RIGHT";
-//     CENTER: "CENTER" = "CENTER";
-// }
-
-// const Position = new PositionClass();
-
-enum AnimationType {
-    FINISH, BACK
-}
-
-const AnimationDuration = 300;
+import {
+    Mode,
+    Edge, Corner, TouchAreaType, CornerAreaLength, Position,
+    AnimationType, AnimationDuration, EasingFunctions
+} from './const';
 
 // (function () {
 //     let requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
@@ -221,7 +190,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                     [Edge.AB]: () => {
                         this.turningCardStyle.top = 0;
                         this.turningCardStyle.left = 0;
-                        this.turningCardStyle.transformOrigin = "top";
+                        this.turningCardStyle.transformOrigin = Position.TOP;
                         // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 0px -32px 40px 5px";
                         this.maskStyle.bottom = "100%";
                         this.maskStyle.left = `${-(this.cardRect.height * 2 - this.cardRect.width) / 2}px`;
@@ -230,7 +199,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                     [Edge.CD]: () => {
                         this.turningCardStyle.top = "100%";
                         this.turningCardStyle.left = 0;
-                        this.turningCardStyle.transformOrigin = "top";
+                        this.turningCardStyle.transformOrigin = Position.TOP;
                         // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 0px -32px 40px 5px";
                         this.maskStyle.top = "100%";
                         this.maskStyle.left = `${-(this.cardRect.height * 2 - this.cardRect.width) / 2}px`;
@@ -239,7 +208,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                     [Edge.AC]: () => {
                         this.turningCardStyle.top = 0;
                         this.turningCardStyle.left = "-100%";
-                        this.turningCardStyle.transformOrigin = "right";
+                        this.turningCardStyle.transformOrigin = Position.RIGHT;
                         // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) 32px 0px 40px 5px";
                         this.maskStyle.top = "-50%";
                         this.maskStyle.right = "100%";
@@ -248,7 +217,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                     [Edge.BD]: () => {
                         this.turningCardStyle.top = 0;
                         this.turningCardStyle.left = "100%";
-                        this.turningCardStyle.transformOrigin = "left";
+                        this.turningCardStyle.transformOrigin = Position.LEFT;
                         // this.turningCardStyle.boxShadow = "rgba(0, 0, 0, 0.4) -32px 0px 40px 5px";
                         this.maskStyle.top = "-50%";
                         this.maskStyle.left = "100%";
@@ -456,6 +425,8 @@ export class AppComponent implements OnInit, AfterViewInit {
             progress = (currentTime - this.animationStartTime) / this.animationDuration;
         progress > 1 && (progress = 1);
 
+        let progressEase = EasingFunctions.easeInCubic(progress);
+
         let finTurnTrX = 0,
             finTurnTrY = 0,
             turnTrX = this.styleValForAnimation.translateX,
@@ -474,10 +445,10 @@ export class AppComponent implements OnInit, AfterViewInit {
             finTurnTrY = turnTrY > 0 ? this.cardRect.height : -this.cardRect.height;
             finMaskTrY = finTurnTrY - finTurnTrY * this.styleValForAnimation.cardScale;
         }
-        turnTrX += (finTurnTrX - turnTrX) * progress;
-        turnTrY += (finTurnTrY - turnTrY) * progress;
-        maskTrX += (finMaskTrX - maskTrX) * progress;
-        maskTrY += (finMaskTrY - maskTrY) * progress;
+        turnTrX += (finTurnTrX - turnTrX) * progressEase;
+        turnTrY += (finTurnTrY - turnTrY) * progressEase;
+        maskTrX += (finMaskTrX - maskTrX) * progressEase;
+        maskTrY += (finMaskTrY - maskTrY) * progressEase;
 
         let v = Math.abs(maskTrX - finMaskTrX) + Math.abs(maskTrY - finMaskTrY);
         v = v > 100 ? 100 : v;
@@ -498,8 +469,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     private __updateBack() {
         let currentTime = Date.now(),
-            progress = (currentTime - this.animationStartTime) / this.animationDuration
+            progress = (currentTime - this.animationStartTime) / this.animationDuration;
         progress > 1 && (progress = 1);
+        let progressEase = EasingFunctions.easeInCubic(progress);
 
         let turnTrX = this.styleValForAnimation.translateX,
             turnTrY = this.styleValForAnimation.translateY,
@@ -508,10 +480,10 @@ export class AppComponent implements OnInit, AfterViewInit {
             cardScale = 0,
             shadowScale = 0;
 
-        turnTrX += (0 - turnTrX) * progress;
-        turnTrY += (0 - turnTrY) * progress;
-        maskTrX += (0 - maskTrX) * progress;
-        maskTrY += (0 - maskTrY) * progress;
+        turnTrX += (0 - turnTrX) * progressEase;
+        turnTrY += (0 - turnTrY) * progressEase;
+        maskTrX += (0 - maskTrX) * progressEase;
+        maskTrY += (0 - maskTrY) * progressEase;
 
         let trXY = Math.abs(turnTrX) + Math.abs(turnTrY);
         let v = trXY > 100 ? 100 : trXY;
