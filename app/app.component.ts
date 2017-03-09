@@ -51,7 +51,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         shadowScale: number
     };
 
-    mode: Mode = Mode.FLIP;
+    mode: Mode = Mode.TWOCARD;
     modeType = Mode;
     cardRect: ClientRect = <any>{};
     touchRect: ClientRect = <any>{};
@@ -91,10 +91,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     ngOnInit() { }
 
     ngAfterViewInit() {
+        this.__initRef();
+    }
+
+    private __initRef() {
         if (this.cardRef && this.cardRef.nativeElement) {
             let element: HTMLDivElement = this.cardRef.nativeElement;
             this.cardRect = element.getBoundingClientRect();
-            this.cdRef.detectChanges();
 
             this.PointA = { x: this.cardRect.left, y: this.cardRect.top };
             this.PointB = { x: this.cardRect.right, y: this.cardRect.top };
@@ -123,7 +126,7 @@ export class AppComponent implements OnInit, AfterViewInit {
                 }
                 return p;
             }
-            console.log(this.cardRect);
+            // console.log(this.cardRect);
         }
 
         if (this.touchRef && this.touchRef.nativeElement) {
@@ -148,6 +151,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     changeMode() {
         this.initial();
         this.mode = this.mode === Mode.TWOCARD ? Mode.FLIP : Mode.TWOCARD;
+        this.cdRef.detectChanges();
+        this.mode === Mode.FLIP && this.__initRef();
     }
 
     handleTurn(e: HammerInput) {

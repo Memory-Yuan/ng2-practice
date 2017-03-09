@@ -1,5 +1,6 @@
 <div class="container" [ngSwitch]="mode">
     <div *ngSwitchCase="modeType.TWOCARD" class="mode-page">
+        <!--<div #cardRef class="card-rect"></div>-->
         <div class="card joker"></div>
         <div class="card back cover-card" (panstart)="handlePan($event)" (pan)="handlePan($event)" [ngStyle]="coverCardStyle"></div>
     </div>
