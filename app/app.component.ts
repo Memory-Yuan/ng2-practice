@@ -146,6 +146,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     changeMode() {
+        this.initial();
         this.mode = this.mode === Mode.TWOCARD ? Mode.FLIP : Mode.TWOCARD;
     }
 

@@ -16,7 +16,7 @@
         <div #touchRef class="touch-area" (panstart)="handleTurn($event)" (pan)="handleTurn($event)"></div>
         <div class="touch-block"></div>
     </div>
-    <button [hidden]="isTurning" class="change-btn" (tap)="changeMode()" [ngSwitch]="mode">
+    <button class="change-btn" (tap)="changeMode()" [ngSwitch]="mode">
         <span *ngSwitchCase="modeType.TWOCARD">mode 1</span>
         <span *ngSwitchCase="modeType.FLIP">mode 2</span>
     </button>
