@@ -476,6 +476,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         if (progress < 1) {
             this.animationID = requestAnimationFrame(() => this.__updateFinish());
         } else {
+            this.turningCardStyle.transition = "box-shadow 50ms ease-out, transform 50ms ease-out";
+            this.turningCardStyle.boxShadow = "1px 1px 6px rgba(0, 0, 0, .3)";
+            this.turningCardStyle.transform = `translate(${turnTrX}px, ${turnTrY}px) rotate(${this.styleValForAnimation.turningCardRotate}deg) scale(1)`;
             this.maskStyle.opacity = 0;
             this.isOnAnimate = false;
         }
