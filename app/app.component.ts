@@ -9,7 +9,8 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetector
 import {
     Mode,
     Edge, Corner, TouchAreaType, CornerAreaLength, Position,
-    AnimationType, AnimationDuration, EasingFunctions
+    AnimationType, AnimationDuration, EasingFunctions,
+    CardType
 } from './const';
 
 // (function () {
@@ -28,6 +29,10 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     @ViewChild("cardRef") cardRef: ElementRef;
     @ViewChild("touchRef") touchRef: ElementRef;
+
+    card: { type: CardType, number: number } = { type: CardType.CLUB, number: 10 };
+    readonly CardTypeList: Array<CardType> = [CardType.CLUB, CardType.DIAMOND, CardType.HEART, CardType.SPADE];
+    readonly CardNumerList: Array<number> = new Array(13);
 
     readonly InitStyle: any = {
         coverCard: {},

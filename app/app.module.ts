@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, HammerGestureConfig, HAMMER_GESTURE_CONFIG } from "@angular/platform-browser";
+import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 
 export class AppHammerConfig extends HammerGestureConfig {
@@ -10,7 +11,7 @@ export class AppHammerConfig extends HammerGestureConfig {
 }
 
 @NgModule({
-  imports: [BrowserModule],
+  imports: [BrowserModule, FormsModule],
   declarations: [AppComponent],
   providers: [
     {

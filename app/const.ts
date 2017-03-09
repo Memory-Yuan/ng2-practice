@@ -69,3 +69,14 @@ export const EasingFunctions = {
     easeOutSin: (t: number) => Math.sin(Math.PI / 2 * t),
     easeInOutSin: (t: number) => (1 + Math.sin(Math.PI * t - Math.PI / 2)) / 2
 };
+
+export type CardType = "club" | "diamond" | "heart" | "spade";
+
+class CardTypeClass {
+    CLUB: "club" = "club";
+    DIAMOND: "diamond" = "diamond";
+    HEART: "heart" = "heart";
+    SPADE: "spade" = "spade";
+}
+
+export const CardType = new CardTypeClass();

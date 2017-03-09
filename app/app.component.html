@@ -1,13 +1,13 @@
 <div class="container" [ngSwitch]="mode">
     <div *ngSwitchCase="modeType.TWOCARD" class="mode-page">
         <div #cardRef class="card-rect"></div>
-        <div class="card joker"></div>
+        <div class="card" [ngClass]="card.type + card.number"></div>
         <div class="card back cover-card" (panstart)="handlePan($event)" (pan)="handlePan($event)" [ngStyle]="coverCardStyle"></div>
     </div>
     <div *ngSwitchCase="modeType.FLIP" class="mode-page">
         <div #cardRef class="card-rect"></div>
         <div class="card back" [ngStyle]="cardBackStyle"></div>
-        <div *ngIf="isTurning" class="card joker turning-card" [ngStyle]="turningCardStyle"></div>
+        <div *ngIf="isTurning" class="card turning-card" [ngClass]="card.type + card.number" [ngStyle]="turningCardStyle"></div>
         <div *ngIf="isTurning" class="mask" [ngStyle]="maskStyle">
             <div class="card-shadow" [ngStyle]="shadowStyle">
                 <div class="s-gradient"></div>
@@ -17,6 +17,17 @@
         <div #touchRef class="touch-area" (panstart)="handleTurn($event)" (pan)="handleTurn($event)"></div>
         <div class="touch-block"></div>
     </div>
+
+    <div class="select-card">
+        <select [(ngModel)]="card.type">
+            <option *ngFor="let typeName of CardTypeList">{{typeName}}</option>
+        </select>
+
+        <select [(ngModel)]="card.number">
+            <option *ngFor="let _ of CardNumerList; let i=index" [ngValue]="i+1">{{i+1}}</option>
+        </select>
+    </div>
+
     <button class="change-btn" (tap)="changeMode()" [ngSwitch]="mode">
         <span *ngSwitchCase="modeType.TWOCARD">mode 1</span>
         <span *ngSwitchCase="modeType.FLIP">mode 2</span>

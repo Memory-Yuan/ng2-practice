@@ -28,14 +28,68 @@
 	box-shadow: 1px 1px 6px rgba(0, 0, 0, .3);
 }
 
-.card.joker {
-	background-image: url(images/cards/black_joker.png);
-}
-
 .card.back {
 	background-image: url(images/card-back.png);
 	background-position: -5px;
 }
+
+.card.joker { background-image: url(images/cards/black_joker.png); }
+
+.card.club1 { background-image: url(images/cards/ace_of_clubs.png); }
+.card.club2 { background-image: url(images/cards/2_of_clubs.png); }
+.card.club3 { background-image: url(images/cards/3_of_clubs.png); }
+.card.club4 { background-image: url(images/cards/4_of_clubs.png); }
+.card.club5 { background-image: url(images/cards/5_of_clubs.png); }
+.card.club6 { background-image: url(images/cards/6_of_clubs.png); }
+.card.club7 { background-image: url(images/cards/7_of_clubs.png); }
+.card.club8 { background-image: url(images/cards/8_of_clubs.png); }
+.card.club9 { background-image: url(images/cards/9_of_clubs.png); }
+.card.club10 { background-image: url(images/cards/10_of_clubs.png); }
+.card.club11 { background-image: url(images/cards/jack_of_clubs2.png); }
+.card.club12 { background-image: url(images/cards/queen_of_clubs2.png); }
+.card.club13 { background-image: url(images/cards/king_of_clubs2.png); }
+
+.card.diamond1 { background-image: url(images/cards/ace_of_diamonds.png); }
+.card.diamond2 { background-image: url(images/cards/2_of_diamonds.png); }
+.card.diamond3 { background-image: url(images/cards/3_of_diamonds.png); }
+.card.diamond4 { background-image: url(images/cards/4_of_diamonds.png); }
+.card.diamond5 { background-image: url(images/cards/5_of_diamonds.png); }
+.card.diamond6 { background-image: url(images/cards/6_of_diamonds.png); }
+.card.diamond7 { background-image: url(images/cards/7_of_diamonds.png); }
+.card.diamond8 { background-image: url(images/cards/8_of_diamonds.png); }
+.card.diamond9 { background-image: url(images/cards/9_of_diamonds.png); }
+.card.diamond10 { background-image: url(images/cards/10_of_diamonds.png); }
+.card.diamond11 { background-image: url(images/cards/jack_of_diamonds2.png); }
+.card.diamond12 { background-image: url(images/cards/queen_of_diamonds2.png); }
+.card.diamond13 { background-image: url(images/cards/king_of_diamonds2.png); }
+
+.card.heart1 { background-image: url(images/cards/ace_of_hearts.png); }
+.card.heart2 { background-image: url(images/cards/2_of_hearts.png); }
+.card.heart3 { background-image: url(images/cards/3_of_hearts.png); }
+.card.heart4 { background-image: url(images/cards/4_of_hearts.png); }
+.card.heart5 { background-image: url(images/cards/5_of_hearts.png); }
+.card.heart6 { background-image: url(images/cards/6_of_hearts.png); }
+.card.heart7 { background-image: url(images/cards/7_of_hearts.png); }
+.card.heart8 { background-image: url(images/cards/8_of_hearts.png); }
+.card.heart9 { background-image: url(images/cards/9_of_hearts.png); }
+.card.heart10 { background-image: url(images/cards/10_of_hearts.png); }
+.card.heart11 { background-image: url(images/cards/jack_of_hearts2.png); }
+.card.heart12 { background-image: url(images/cards/queen_of_hearts2.png); }
+.card.heart13 { background-image: url(images/cards/king_of_hearts2.png); }
+
+.card.spade1 { background-image: url(images/cards/ace_of_spades.png); }
+.card.spade2 { background-image: url(images/cards/2_of_spades.png); }
+.card.spade3 { background-image: url(images/cards/3_of_spades.png); }
+.card.spade4 { background-image: url(images/cards/4_of_spades.png); }
+.card.spade5 { background-image: url(images/cards/5_of_spades.png); }
+.card.spade6 { background-image: url(images/cards/6_of_spades.png); }
+.card.spade7 { background-image: url(images/cards/7_of_spades.png); }
+.card.spade8 { background-image: url(images/cards/8_of_spades.png); }
+.card.spade9 { background-image: url(images/cards/9_of_spades.png); }
+.card.spade10 { background-image: url(images/cards/10_of_spades.png); }
+.card.spade11 { background-image: url(images/cards/jack_of_spades2.png); }
+.card.spade12 { background-image: url(images/cards/queen_of_spades2.png); }
+.card.spade13 { background-image: url(images/cards/king_of_spades2.png); }
 
 .coordinate {
 	position: fixed;
@@ -149,14 +203,39 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
 	position: absolute;
 	bottom: 0;
 	left: 0;
-	width: 60px;
-	height: 40px;
+	font-size: 2em;
 }
 
 .replay-btn {
 	position: absolute;
 	bottom: 0;
 	right: 0;
-	width: 60px;
-	height: 40px;
+	font-size: 2em;
+}
+
+.select-card {
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translate(-50%);
+	padding: 0 10px;
+
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+}
+
+.select-card select {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	font-size: 2em;
+}
+
+.select-card select:first-of-type {
+	margin-right: 10px;
 }
