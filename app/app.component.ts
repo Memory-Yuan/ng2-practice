@@ -137,14 +137,21 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     handlePan(e: HammerInput) {
-        // console.log("pan", e);
+        if (this.isTurnFin) { return; }
+
         if (e.type === "panstart") {
-            this.coverCardStyle = Object.assign({}, this.InitStyle.coverCard);
+            this.coverCardStyle = Object.assign({}, this.InitStyle.coverCard, { opacity: 1 });
         } else if (e.isFinal) {
             this.coverCardStyle.transition = "transform 100ms ease-out";
             this.coverCardStyle.transform = `translate(0, 0)`;
         } else {
             this.coverCardStyle.transform = `translate(${e.deltaX}px, ${e.deltaY}px)`;
+            // if (e.distance > 150) {
+            if (Math.abs(e.deltaX) > this.cardRect.width / 3 || Math.abs(e.deltaY) > this.cardRect.height / 3) {
+                this.coverCardStyle.transition = "opacity 500ms ease-out";
+                this.coverCardStyle.opacity = 0;
+                this.isTurnFin = true;
+            }
         }
     }
 
@@ -403,6 +410,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     initial() {
+        this.coverCardStyle = Object.assign({}, this.InitStyle.coverCard);
         this.turningCardStyle = Object.assign({}, this.InitStyle.turningCard);
         this.maskStyle = Object.assign({}, this.InitStyle.mask);
         this.shadowStyle = Object.assign({}, this.InitStyle.shadow);
