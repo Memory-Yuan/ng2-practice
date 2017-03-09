@@ -22,7 +22,7 @@
 .card {
 	background-size: cover;
 	background-repeat: no-repeat;
-	height: 435px;
+	height: 436px;
 	width: 300px;
 	border-radius: 14px;
 	box-shadow: 1px 1px 6px rgba(0, 0, 0, .3);
@@ -199,43 +199,38 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
 	/*background: rgba(0, 0, 0, 0.7);*/
 }
 
-.change-btn{
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	font-size: 2em;
-}
-
-.replay-btn {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	font-size: 2em;
-}
-
-.select-card {
+.toolbar {
 	width: 100%;
 	position: absolute;
-	top: 0;
 	left: 50%;
 	transform: translate(-50%);
-	padding: 0 10px;
+	padding: 5px;
 
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-pack: center;
-	-ms-flex-pack: center;
-	justify-content: center;
 }
 
-.select-card select {
+.toolbar-top {
+	top: 0;
+}
+
+.toolbar-top select {
 	-webkit-box-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
-	font-size: 2em;
+	font-size: 1.5em;
 }
 
-.select-card select:first-of-type {
-	margin-right: 10px;
+.toolbar-top select:first-of-type {
+	margin-right: 5px;
+}
+
+.toolbar-bottom {
+	bottom: 0;
+	justify-content: space-between;
+}
+
+.toolbar-bottom button {
+	font-size: 1.5em;
 }

@@ -18,7 +18,7 @@
         <div class="touch-block"></div>
     </div>
 
-    <div class="select-card">
+    <div class="toolbar toolbar-top">
         <select [(ngModel)]="card.type">
             <option *ngFor="let typeName of CardTypeList">{{typeName}}</option>
         </select>
@@ -28,12 +28,15 @@
         </select>
     </div>
 
-    <button class="change-btn" (tap)="changeMode()" [ngSwitch]="mode">
-        <span *ngSwitchCase="modeType.TWOCARD">mode 1</span>
-        <span *ngSwitchCase="modeType.FLIP">mode 2</span>
-    </button>
+    <div class="toolbar toolbar-bottom">
+        <button (tap)="changeMode()" [ngSwitch]="mode">
+            <span *ngSwitchCase="modeType.TWOCARD">Mode 1</span>
+            <span *ngSwitchCase="modeType.FLIP">Mode 2</span>
+        </button>
 
-    <button class="replay-btn" (tap)="initial()">replay</button>
+        <button (tap)="initial()">Replay</button>
+    </div>
+
     <!--<div class="coordinate" [ngStyle]="{'left.px': cardRect.left, 'top.px': cardRect.top}">({{cardRect.left || 0}}, {{cardRect.top || 0}})</div>
     <div class="coordinate" [ngStyle]="{'left.px': cardRect.right, 'top.px': cardRect.top}">({{cardRect.right || 0}}, {{cardRect.top || 0}})</div>
     <div class="coordinate" [ngStyle]="{'left.px': cardRect.left, 'top.px': cardRect.bottom}">({{cardRect.left || 0}}, {{cardRect.bottom || 0}})</div>
